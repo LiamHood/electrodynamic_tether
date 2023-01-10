@@ -1,4 +1,5 @@
-function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, tether_param, mag_model, mu , tol )
+function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, ...
+    tether_param, mag_model, mu, dt, tol)
 % Uses enckes method of perturbation propagation,
 %
 % Considers electrodynamic force and gravity gradient
@@ -6,7 +7,6 @@ function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, tether_
 % third body of sun and moon, srp
 % tether is treated as dumbbell model, rigid with lumped masses at the end
 
-    dt = 10;
     
     % set starting values
     rp = sc_state0(1:3) ;
@@ -61,8 +61,8 @@ function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, tether_
             lim_e = m*L*1000*(1-cos(deg2rad(limit_libration)));
 
             % find "energy"
-            pe_p = m*L*1000*(1-cos(phi(ii)));
-            ke_p = (1/2)*Ix*(dphi(ii)*4)^2;
+            pe_p = m*L*1000*(1-cos(phi(ii-1)));
+            ke_p = (1/2)*Ix*(dphi(ii-1)*4)^2;
             if phi < 0
                 pe_p = -pe_p;
             end
@@ -70,8 +70,8 @@ function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, tether_
                 ke_p = -ke_p;
             end
             e_p = pe_p + ke_p;
-            pe_t = m*L*1000*(1-cos(theta));
-            ke_t = (1/2)*Iy*(dtheta*4)^2;
+            pe_t = m*L*1000*(1-cos(theta(ii-1)));
+            ke_t = (1/2)*Iy*(dtheta(ii-1)*4)^2;
             if theta < 0
                 pe_t = -pe_t;
             end
@@ -118,7 +118,7 @@ function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, tether_
         rp = r(:,ii) + dr ; % position perturbed
         vp = v(:,ii) + dv ; % velocity perturbed
 %         track_dr(ii) = norm(dr);        
-        if norm(dr)/norm(rp) > 1e-4
+        if norm(dr)/norm(rp) > tol
             r(:,ii) = rp ;
             v(:,ii) = vp ;
             dr = zeros(3,1);
