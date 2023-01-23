@@ -82,8 +82,8 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
 
         % Find the instantaneous Lorentz force, Lorentz torque, and gravity
         % gradient
-%         [Bx, By, Bz] = MagField_NonTilted(states);
-        [Bx, By, Bz] = MagField_igrf(states, t, mu);
+        [Bx, By, Bz] = MagField_NonTilted(states);
+%         [Bx, By, Bz] = MagField_igrf(states, t, mu);
         [fr, fs, fw] = edt_forces(states, tether_param, I, Bx, By, Bz);
         Tq = edt_torque(states, tether_param, I, Bx, By, Bz);
         Tgg = gravity_grad_torque(states, tether_param, mu);

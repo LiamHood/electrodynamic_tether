@@ -20,7 +20,7 @@ mt = 20;%kg
 It = m2*(L*1000)^2 + mt*(1/3)*(L*1000)^2;
 Ia = 0;
 current_type = 0; % 0: constant, 2: controlled
-current_val = 1;
+current_val = 2;
 
 %% Inputs
 menu1 = input("Run with defaults? [Y]/N", 's');
