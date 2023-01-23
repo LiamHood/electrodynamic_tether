@@ -1,7 +1,7 @@
 clear; close all; clc;
 
 %% Defaults
-a0 = 6878;
+a0 = 6978;
 e0 = .02;
 i0_deg = 30;
 i0 = deg2rad(i0_deg);
