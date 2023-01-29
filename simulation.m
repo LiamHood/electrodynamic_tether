@@ -4,26 +4,21 @@ clear; close all; clc;
 mu = 398600;
 
 % orbit
-a0_def = 6978;
-e0_def = .02;
-i0_deg_def = 30;
-% i0 = deg2rad(i0_deg);
-RAAN0_deg_def = 30;
-% RAAN0 = deg2rad(RAAN0_deg);
-aop0_deg_def = 50;
-% aop0 = deg2rad(aop0_deg);
-ta0_deg_def = 0;
-% ta0 = deg2rad(ta0_deg);
-
+a0_def = 6978; % [km], semi-major axis
+e0_def = .02; % eccentricity
+i0_deg_def = 30; % [degree], inclination
+RAAN0_deg_def = 30; % [degree], right ascension of ascending node
+aop0_deg_def = 50; % [degree], argument of perigee
+ta0_deg_def = 0; % [degree], true anomaly
 
 % tether
-L_def = 15;%km
-m1_def = 250;%kg
-m2_def = 15;%kg
-mt_def = 20;%kg
-Ia_def = 0;
-current_type_def = 2; % 0: constant, 2: controlled
-current_val_def = 2;
+L_def = 15; % [km], Tether length
+m1_def = 250; % [kg], main satellite mass
+m2_def = 15; % [kg], secondary satellite mass
+mt_def = 20; % [kg], tether mass
+Ia_def = 0; % [kg*m^2], inertia about local vertical axis
+current_type_def = 0; % 0: constant, 2: controlled by energy limit
+current_val_def = 1; % [A] current value, max if 
 
 
 % simulation
