@@ -57,35 +57,9 @@ function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, ...
             I = OML(tether_param);
         elseif current_type == 2 % controlled
             limit_libration = 35; % limit degrees for calculating energy limit
-            I = current_val;
-            lim_e = m*L*1000*(1-cos(deg2rad(limit_libration)));
 
             % find "energy"
-            pe_p = m*L*1000*(1-cos(phi(ii-1)));
-            ke_p = (1/2)*Ix*(dphi(ii-1)*4)^2;
-            if phi < 0
-                pe_p = -pe_p;
-            end
-            if dphi < 0
-                ke_p = -ke_p;
-            end
-            e_p = pe_p + ke_p;
-            pe_t = m*L*1000*(1-cos(theta(ii-1)));
-            ke_t = (1/2)*Iy*(dtheta(ii-1)*4)^2;
-            if theta < 0
-                pe_t = -pe_t;
-            end
-            if dtheta < 0
-                ke_t = -ke_t;
-            end
-            e_t = pe_t + ke_t;
-
-            % set to 0 if too much energy
-            if abs(e_p) > lim_e
-                I = 0;
-            elseif abs(e_t) > lim_e
-                I = 0;
-            end
+            [I, ~] = controlled_current(limit_libration, current_val, roll, pitch, droll, dpitch, m, L);
         end
     
         % Find COES so that the function developed for VOP work
