@@ -14,7 +14,7 @@ function [Bx, By, Bz] = MagField_NonTilted(COES)
     
     % Calculate magnetic field based on https://doi.org/10.2514/1.12016
     Bo = 3.12e-5;
-    Bo_over_R3 = Bo/(6378/(p/(1+e*cos(ta))))^3;
+    Bo_over_R3 = Bo/((p/(1+e*cos(ta)))/6378)^3;
 
     Bx = -2*Bo_over_R3*sin(aop + ta)*sin(i);
     By = Bo_over_R3*cos(aop+ta)*sin(i);

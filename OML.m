@@ -5,8 +5,8 @@ function I = OML(tether_param)
     R = tether_param(10); % Tether radius (m)
     L = tether_param(1)*1000; % Tether Length (m)
     p = R*2*pi; % Tether cross sectional parameter (m)
-    phiP = 100; % Cylindrical probe bias
-    N0 = 0; % ambient electron density
+    phiP = 1000; % Cylindrical probe bias
+    N0 = 1e-6*(1e2)^3; % ambient electron density
     
     
     I = e*N0*(L*p/pi)*sqrt(2*e*phiP/me);

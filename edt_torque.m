@@ -6,11 +6,11 @@ function Tq = edt_torque(states, tether_param, I, Bx, By, Bz)
     % will still be present in bare-wire tethers, but the relationship
     % is not as straightforward because of the nonuniform distribution 
     % of the electric current.
-    phi = states(7);
-    theta = states(8);     
+    roll = states(7);
+    pitch = states(8);     
 
     % set states with friendly names
-    L = tether_param(1);
+    L = tether_param(1)*1000;
     m1 = tether_param(2);
     m2 = tether_param(3);
     mt = tether_param(4);
@@ -21,8 +21,8 @@ function Tq = edt_torque(states, tether_param, I, Bx, By, Bz)
     % relative to the system center of mass
     PHI = (m1^2-m2^2+mt*(m1-m2))/m^2; 
 
-    Qtheta = (I*(L*1000)^2/2)*PHI*cos(phi)*...
-        (sin(phi)*(Bx*cos(theta)+By*sin(theta))-Bz*cos(phi));
-    Qphi = -(I*(L*1000)^2/2)*PHI*(By*cos(theta)-Bx*sin(theta));
-    Tq = [Qphi; Qtheta; 0];
+    Qpitch = (I*L^2/2)*PHI*cos(roll)*...
+        (sin(roll)*(Bx*cos(pitch)+By*sin(pitch))-Bz*cos(roll));
+    Qroll = -(I*L^2/2)*PHI*(By*cos(pitch)-Bx*sin(pitch));
+    Tq = [Qroll; Qpitch; 0]*1e-6; % convert to km
 end

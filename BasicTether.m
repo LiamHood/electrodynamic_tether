@@ -25,15 +25,15 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
         ta = states(6);
 
         % set attitude states with friendly names
-        phi = states(7);
-        theta = states(8);
-        psi = states(9);
-        dphi = states(10);
-        dtheta = states(11);
-        dpsi = states(12);
+        roll = states(7);
+        pitch = states(8);
+        yaw = states(9);
+        droll = states(10);
+        dpitch = states(11);
+        dyaw = states(12);
         
         % set tether parameters with friendly names
-        L = tether_param(1);
+        L = tether_param(1)*1000;
         m1 = tether_param(2);
         m2 = tether_param(3);
         mt = tether_param(4);
@@ -51,40 +51,15 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
         elseif current_type == 2
             % while energy is less than required to reach limit from 
             limit_libration = 35;
-            I = current_val;
-            lim_e = m*L*1000*(1-cos(deg2rad(limit_libration)));
-            pe_p = m*L*1000*(1-cos(phi));
-            ke_p = (1/2)*Ix*(dphi*4)^2;
-%             ke_p = (1/2)*Ix*(dphi)^2;
-            if phi < 0
-                pe_p = -pe_p;
-            end
-            if dphi < 0
-                ke_p = -ke_p;
-            end
-            e_p = pe_p + ke_p;
-            pe_t = m*L*1000*(1-cos(theta));
-            ke_t = (1/2)*Iy*(dtheta*4)^2;
-%             ke_t = (1/2)*Iy*(dtheta)^2;
-            if theta < 0
-                pe_t = -pe_t;
-            end
-            if dtheta < 0
-                ke_t = -ke_t;
-            end
-            e_t = pe_t + ke_t;
-            if abs(e_p) > lim_e
-                I = 0;
-            elseif abs(e_t) > lim_e
-                I = 0;
-            end
+            [I, ~] = controlled_current(limit_libration, current_val, roll, pitch, droll, dpitch, m, L);
         end
 
         % Find the instantaneous Lorentz force, Lorentz torque, and gravity
         % gradient
         [Bx, By, Bz] = MagField_NonTilted(states);
 %         [Bx, By, Bz] = MagField_igrf(states, t, mu);
-        [fr, fs, fw] = edt_forces(states, tether_param, I, Bx, By, Bz);
+%          r      theta     h
+        [f_yaw, f_roll, f_pitch] = edt_forces(states, tether_param, I, Bx, By, Bz);
         Tq = edt_torque(states, tether_param, I, Bx, By, Bz);
         Tgg = gravity_grad_torque(states, tether_param, mu);
 
@@ -96,22 +71,21 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
         u = aop + ta;
 
         % orbital elements change using Vallado p.636
-        da = (2/(n*sqrt(1-e^2)))*(e*sin(ta)*fr + (p/r)*fs);
-        de = (sqrt(1-e^2)/(n*a))*(sin(ta)*fr + ...
-            (cos(ta)+(e+cos(ta))/(1+e*cos(ta)))*fs);
-        di = (r*cos(u)/(n*a^2*sqrt(1-e^2)))*fw;
-        dRAAN = (r*sin(u)/(n*a^2*sqrt(1-e^2)*sin(i)))*fw;
-        daop = (sqrt(1-e^2)/(n*a*e))*(-cos(ta)*fr + ...
-            sin(ta)*(1+r/p)*fs) - (r*cot(i)*sin(u)/h)*fw;
-        dta = h/r^2 + (1/(e*h))*(p*cos(ta)*fr - (p+r)*sin(ta)*fs);
+        da = (2/(n*sqrt(1-e^2)))*(e*sin(ta)*f_yaw + (p/r)*f_roll);
+        de = (sqrt(1-e^2)/(n*a))*(sin(ta)*f_yaw + ...
+            (cos(ta)+(e+cos(ta))/(1+e*cos(ta)))*f_roll);
+        di = (r*cos(u)/(n*a^2*sqrt(1-e^2)))*f_pitch;
+        dRAAN = (r*sin(u)/(n*a^2*sqrt(1-e^2)*sin(i)))*f_pitch;
+        daop = (sqrt(1-e^2)/(n*a*e))*(-cos(ta)*f_yaw + ...
+            sin(ta)*(1+r/p)*f_roll) - (r*cot(i)*sin(u)/h)*f_yaw;
+        dta = h/r^2 + (1/(e*h))*(p*cos(ta)*f_yaw - (p+r)*sin(ta)*f_roll);
         
         % attitude change from 16.1 of Spacecraft dynamics
-        wo = -sqrt(mu/r^3);
         body_torque = Tgg+Tq;
-        ddphi = dpsi*wo + ((Iz-Iy)*(wo^2*phi+wo*dpsi)+body_torque(1))/Ix;
-        ddtheta = body_torque(2)/Iy;        
-        ddpsi = 0;
-        dstate = [da; de; di; dRAAN; daop; dta; dphi; dtheta; dpsi; ddphi; ddtheta; ddpsi];
+        ddroll = (body_torque(1) - (Iz - Iy)*dpitch*dyaw)/Ix;
+        ddpitch = (body_torque(2) - (Ix - Iz)*droll*dyaw)/Iy;        
+        ddyaw = 0;
+        dstate = [da; de; di; dRAAN; daop; dta; droll; dpitch; dyaw; ddroll; ddpitch; ddyaw];
     end
 
 end

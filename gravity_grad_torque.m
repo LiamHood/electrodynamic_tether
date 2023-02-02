@@ -8,9 +8,9 @@ function Tgg = gravity_grad_torque(states, tether_param, mu)
     RAAN = states(4);
     aop = states(5);
     ta = states(6);
-    phi = states(7);
-    theta = states(8);
-    psi = states(9);
+    roll = states(7);
+    pitch = states(8);
+    yaw = states(9);
 
     % Make inertia matrix
     Ix = tether_param(5);
@@ -22,20 +22,28 @@ function Tgg = gravity_grad_torque(states, tether_param, mu)
     [ rvec , vvec ] = coes2state( [sqrt(mu*a*(1-e^2)), i, e, RAAN, aop, ta] , mu );
     r = norm(rvec);
 
+    % find Roll-Pitch-Yaw axes
+%     yaw_hat = -rvec/r;
+%     pitch_hat = cross(rvec,vvec)/norm(cross(rvec,vvec));
+%     roll_hat = cross(yaw_hat, pitch_hat)/norm(cross(yaw_hat, pitch_hat));
+%     C_rpy2eci = [roll_hat, pitch_hat, yaw_hat];
+%     C_eci2rpy = C_rpy2eci';
+
     % Dynamics from "Spacecraft Dynamics and Control"
-    Cbo = [cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta);
-            sin(phi)*sin(theta)*cos(psi)-cos(theta)*sin(psi), ...
-            sin(phi)*sin(theta)*sin(psi)+cos(phi)*sin(psi), ...
-            sin(phi)*cos(theta);
-            cos(phi)*sin(theta)*cos(psi)+sin(phi)*sin(psi), ...
-            cos(phi)*sin(theta)*sin(psi)-sin(phi)*cos(psi), ...
-            cos(phi)*cos(theta)];
-    rb = Cbo*[0;0;-r];
+    C_rpy2body = [cos(pitch)*cos(yaw), cos(pitch)*sin(yaw), -sin(pitch);
+            sin(roll)*sin(pitch)*cos(yaw)-cos(roll)*sin(yaw), ...
+            sin(roll)*sin(pitch)*sin(yaw)+cos(roll)*cos(yaw), ...
+            sin(roll)*cos(pitch);
+            cos(roll)*sin(pitch)*cos(yaw)+sin(roll)*sin(yaw), ...
+            cos(roll)*sin(pitch)*sin(yaw)-sin(roll)*cos(yaw), ...
+            cos(roll)*cos(pitch)];
+    C_body2rpy = C_rpy2body';
+    rb = C_rpy2body*[0;0;r];
 
     % transform inertia into eci
     rbcross = [0, -rb(3), rb(2);
                 rb(3), 0, -rb(1);
                 -rb(2), rb(2), 0];
-    Tgg = 3*mu/r^5 * rbcross*inertia*rb;
+    Tgg = ((3*mu/r^5 * rbcross*inertia*rb));
 end
     
