@@ -4,8 +4,8 @@ clear; close all; clc;
 mu = 398600; % [km^3/s^2]
 
 % orbit
-a0_def = 6978; % [km], semi-major axis
-e0_def = .2; % eccentricity
+a0_def = 6878; % [km], semi-major axis
+e0_def = .02; % eccentricity
 i0_deg_def = 30; % [degree], inclination
 RAAN0_deg_def = 30; % [degree], right ascension of ascending node
 aop0_deg_def = 50; % [degree], argument of perigee
@@ -13,12 +13,12 @@ ta0_deg_def = 0; % [degree], true anomaly
 
 % tether
 L_def = 20; % [km], Tether length
-m1_def = 250; % [kg], main satellite mass
-m2_def = 50; % [kg], secondary satellite mass
+m1_def = 750; % [kg], main satellite mass
+m2_def = 250; % [kg], secondary satellite mass
 mt_def = 20; % [kg], tether mass
 Ia_def = 0; % [kg*m^2], inertia about local vertical axis
-current_type_def = 0; % 0: constant, 2: controlled by energy limit
-current_val_def = 0.5; % [A] current value, max if 
+current_type_def = 1; % 0: constant, 2: controlled by energy limit
+current_val_def = 5; % [A] current value, max if 
 
 
 % simulation
@@ -282,7 +282,7 @@ else
     tspan = [0, tend*60*60];
     sc_state0 = [a0; e0; i0; RAAN0; aop0; ta0];
     tether_state0 = [0.1; 0.1; 0; 0; 0; 0];
-    tether_param = [L; m1; m2; mt; It; It; Ia; current_type; current_val; .03];
+    tether_param = [L; m1; m2; mt; It; It; Ia; current_type; current_val; .0006];
     
     % Run simulation using Variation of Parameters
     [ t , states] = BasicTether( tspan , sc_state0, tether_state0, ...
