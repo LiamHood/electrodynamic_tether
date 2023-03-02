@@ -14,10 +14,10 @@ ta0_deg_def = 0; % [degree], true anomaly
 % tether
 L_def = 20; % [km], Tether length
 m1_def = 250; % [kg], main satellite mass
-m2_def = 20; % [kg], secondary satellite mass
+m2_def = 50; % [kg], secondary satellite mass
 mt_def = 20; % [kg], tether mass
 Ia_def = 0; % [kg*m^2], inertia about local vertical axis
-current_type_def = 2; % 0: constant, 2: controlled by energy limit
+current_type_def = 0; % 0: constant, 2: controlled by energy limit
 current_val_def = 0.5; % [A] current value, max if 
 
 
