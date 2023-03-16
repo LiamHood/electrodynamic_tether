@@ -2,6 +2,7 @@ clear; close all; clc;
 
 %% Defaults
 mu = 398600; % [km^3/s^2]
+load("time_lla_2_density.mat")
 
 % orbit
 a0_def = 6878; % [km], semi-major axis
@@ -17,7 +18,7 @@ m1_def = 750; % [kg], main satellite mass
 m2_def = 250; % [kg], secondary satellite mass
 mt_def = 20; % [kg], tether mass
 Ia_def = 0; % [kg*m^2], inertia about local vertical axis
-current_type_def = 1; % 0: constant, 2: controlled by energy limit
+current_type_def = 3; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
 current_val_def = 5; % [A] current value, max if 
 
 
@@ -286,7 +287,7 @@ else
     
     % Run simulation using Variation of Parameters
     [ t , states] = BasicTether( tspan , sc_state0, tether_state0, ...
-        tether_param, mu , tol );
+        tether_param, mu , tol, net);
     
     % Transform raw results for human readability
     t = t/(60*60);
