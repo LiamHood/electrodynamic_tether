@@ -11,12 +11,12 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
 
     opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
     [ t , states ] = ode45(@gauss_variations, tspan , ...
-        [ sc_state0 ; tether_state0], opts, tether_param, mu) ;
+        [ sc_state0 ; tether_state0], opts, tether_param, mu, net) ;
 
 
-    function dstate = gauss_variations(t, states, tether_param, mu)
+    function dstate = gauss_variations(t, states, tether_param, mu, net)
         jdate = 2458849.5 + t/24;
-        t/3600
+%         t/3600
         % set orbit states with friendly names
         a = states(1);
         e = states(2);
@@ -47,8 +47,14 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
 
         if current_type == 0
             I = current_val;
+        elseif current_type == 1
+            % while energy is less than required to reach limit from 
+            limit_libration = 35;
+            [I, ~] = controlled_current(limit_libration, current_val, roll, pitch, droll, dpitch, m, L);
+        elseif current_type == 2
+            N0 = 2.0208e5;
+            I = OML(tether_param, N0*(1e2)^3);
         elseif current_type == 3
-            
             utc_time = datetime(jdate,'ConvertFrom','juliandate');
             [ r , ~ ] = coes2state([sqrt(mu*a*(1-e^2)), i, e, RAAN, aop, ta], mu );
             lla = eci2lla(r'*1e3,[year(utc_time), month(utc_time), day(utc_time),...
@@ -59,13 +65,6 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
                 time = time + 24;
             end
             N0 = net([time;lla(1);lla(2);lla(3)*1e-3],'useGPU','yes');
-            I = OML(tether_param, N0*(1e2)^3);
-        elseif current_type == 1
-            % while energy is less than required to reach limit from 
-            limit_libration = 35;
-            [I, ~] = controlled_current(limit_libration, current_val, roll, pitch, droll, dpitch, m, L);
-        elseif current_type == 2
-            N0 = 2.0208e5;
             I = OML(tether_param, N0*(1e2)^3);
         end
 
