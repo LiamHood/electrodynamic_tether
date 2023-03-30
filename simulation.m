@@ -5,26 +5,26 @@ mu = 398600; % [km^3/s^2]
 load("time_lla_2_density.mat")
 
 % orbit
-a0_def = 6878; % [km], semi-major axis
-e0_def = .02; % eccentricity
+a0_def = 7378; % [km], semi-major axis
+e0_def = .002; % eccentricity
 i0_deg_def = 30; % [degree], inclination
 RAAN0_deg_def = 40; % [degree], right ascension of ascending node
 aop0_deg_def = 50; % [degree], argument of perigee
 ta0_deg_def = 0; % [degree], true anomaly
 
 % tether
-L_def = 2; % [km], Tether length
-m1_def = 50; % [kg], main satellite mass
-m2_def = 30; % [kg], secondary satellite mass
-mt_def = 10; % [kg], tether mass
+L_def = 5; % [km], Tether length
+m1_def = 647.8; % [kg], main satellite mass
+m2_def = 392.2; % [kg], secondary satellite mass
+mt_def = 23.9448; % [kg], tether mass
 Ia_def = 0; % [kg*m^2], inertia about local vertical axis
-current_type_def = 1; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
+current_type_def = 2; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
 current_val_def = 5; % [A] current value, max if 
-
+tether_radius = .00075;
 
 % simulation
-tend_def = 30; % [hour], time of simulation
-mag_model_def = 0; % 0: non-tilted; 1: igrf
+tend_def = 24*60; % [hour], time of simulation
+mag_model_def = 1; % 0: non-tilted; 1: igrf
 
 %% Orbital inputs
 menu1 = input("Adjust orbit initial conditions? Y/[N]", 's');
@@ -189,7 +189,7 @@ if propagation_choice == "E" || propagation_choice == "e"
     tspan = [0, tend*60*60];
     sc_state0 = [r0; v0];
     tether_state0 = [0.0; 0.0; 0; 0; 0; 0];
-    tether_param = [L; m1; m2; mt; It; It; Ia; current_type; current_val];
+    tether_param = [L; m1; m2; mt; It; It; Ia; current_type; current_val, tether_radius];
     
     % Run simulation using Encke's Method
     [ t , states] = encke_tether( tspan , sc_state0, tether_state0, ...
@@ -282,11 +282,11 @@ else
     tspan = [0, tend*60*60];
     sc_state0 = [a0; e0; i0; RAAN0; aop0; ta0];
     tether_state0 = [0.1; 0.1; 0; 0; 0; 0];
-    tether_param = [L; m1; m2; mt; It; It; Ia; current_type; current_val; .0006];
+    tether_param = [L; m1; m2; mt; It; It; Ia; current_type; current_val; tether_radius];
     
     % Run simulation using Variation of Parameters
     [ t , states] = BasicTether( tspan , sc_state0, tether_state0, ...
-        tether_param, mu , tol, net);
+        tether_param, mag_model, mu , tol, net);
     
     % Transform raw results for human readability
     t = t/(60*60);
@@ -433,6 +433,18 @@ elseif current_type == 2
     plot(t,I)
     xlabel('time [hours]')
     ylabel('Current [Amps]')
+elseif current_type == 3
+    utc_time = datetime(jdate,'ConvertFrom','juliandate');
+    [ r , ~ ] = coes2state([sqrt(mu*a*(1-e^2)), i, e, RAAN, aop, ta], mu );
+    lla = eci2lla(r'*1e3,[year(utc_time), month(utc_time), day(utc_time),...
+        hour(utc_time), minute(utc_time),second(utc_time)]);
+    [zd,~,~] = timezone(lla(2));
+    time = zd + hour(utc_time) + minute(utc_time)/60 + second(utc_time)/(60*60);
+    if time < 0
+        time = time + 24;
+    end
+    N0 = net([time;lla(1);lla(2);lla(3)*1e-3],'useGPU','yes');
+    I = OML(tether_param, N0*(1e2)^3);
 end
 
 

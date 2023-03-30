@@ -1,4 +1,4 @@
-function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_param, mu , tol , net)
+function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_param, mag_model, mu , tol , net)
 % Uses Classical Orbital Elements a (semimajor axis), e (eccentricity), 
 % i (inclination), RAAN (right ascension of ascending node), aop (argument
 % of periapsis), ta (true anomaly)
@@ -11,10 +11,10 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
 
     opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
     [ t , states ] = ode45(@gauss_variations, tspan , ...
-        [ sc_state0 ; tether_state0], opts, tether_param, mu, net) ;
+        [ sc_state0 ; tether_state0], opts, tether_param, mag_model, mu, net) ;
 
 
-    function dstate = gauss_variations(t, states, tether_param, mu, net)
+    function dstate = gauss_variations(t, states, tether_param, mag_model, mu, net)
         jdate = 2458849.5 + t/24;
 %         t/3600
         % set orbit states with friendly names
@@ -44,6 +44,12 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
         Iz = tether_param(7);
         current_type = tether_param(8);
         current_val = tether_param(9);
+
+        if mag_model == 1
+            [Bx, By, Bz] = MagField_igrf(states, t, mu);
+        else
+            [Bx, By, Bz] = MagField_NonTilted(states); % a, e, i, RAAN, omega, theta
+        end
 
         if current_type == 0
             I = current_val;
