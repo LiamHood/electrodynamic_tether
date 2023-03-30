@@ -8,18 +8,18 @@ load("time_lla_2_density.mat")
 a0_def = 6878; % [km], semi-major axis
 e0_def = .02; % eccentricity
 i0_deg_def = 30; % [degree], inclination
-RAAN0_deg_def = 40; % [degree], right ascension of ascending node
+RAAN0_deg_def = 30; % [degree], right ascension of ascending node
 aop0_deg_def = 50; % [degree], argument of perigee
 ta0_deg_def = 0; % [degree], true anomaly
 
 % tether
 L_def = 2; % [km], Tether length
 m1_def = 50; % [kg], main satellite mass
-m2_def = 30; % [kg], secondary satellite mass
+m2_def = 40; % [kg], secondary satellite mass
 mt_def = 10; % [kg], tether mass
 Ia_def = 0; % [kg*m^2], inertia about local vertical axis
-current_type_def = 1; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
-current_val_def = 5; % [A] current value, max if 
+current_type_def = 2; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
+current_val_def = 10; % [A] current value, max if 
 
 
 % simulation
@@ -424,15 +424,14 @@ elseif current_type == 1
     ylabel('pitch energy [J/m]')
     legend("potential energy", "kinetic energy", "total energy","limit")
 elseif current_type == 2
-    for ii = 1:length(t)
-        N0 = 2.0208e5;
-        I(ii) = OML(tether_param, N0*(1e2)^3);
-    end
+    for ii = 1:
     figure
-    title("OML Current")
+    title("Current if Controlled")
+    subplot(3,1,1)
     plot(t,I)
     xlabel('time [hours]')
     ylabel('Current [Amps]')
+    
 end
 
 
