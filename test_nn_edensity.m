@@ -6,7 +6,7 @@ tra_input = table2array([electrondensity(:,"LocalTime"),electrondensity(:,"Latit
     electrondensity(:,"Longitude"), electrondensity(:,"Altitude")])';
 tra_target = table2array(electrondensity(:,"Density"))';
 
-net = feedforwardnet([2,2,2,2,2,2,2].^4,'trainlm');
+net = feedforwardnet([2,2,2,2,2].^6,'trainlm');
 net = configure(net, tra_input, tra_target);
 % for i=1:net.numLayers
 %   if strcmp(net.layers{i}.transferFcn,'tansig')
