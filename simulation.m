@@ -8,7 +8,7 @@ load("time_lla_2_density.mat")
 a0_def = 7378; % [km], semi-major axis
 e0_def = .002; % eccentricity
 i0_deg_def = 30; % [degree], inclination
-RAAN0_deg_def = 40; % [degree], right ascension of ascending node
+RAAN0_deg_def = 30; % [degree], right ascension of ascending node
 aop0_deg_def = 50; % [degree], argument of perigee
 ta0_deg_def = 0; % [degree], true anomaly
 
