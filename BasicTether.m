@@ -15,8 +15,8 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
 
 
     function dstate = gauss_variations(t, states, tether_param, mag_model, mu, net)
-        jdate = 2458849.5 + t/24;
-%         t/3600
+        jdate = 2458849.5 + t/(24*3600);
+        t/3600
         % set orbit states with friendly names
         a = states(1);
         e = states(2);
@@ -69,8 +69,20 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
             time = zd + hour(utc_time) + minute(utc_time)/60 + second(utc_time)/(60*60);
             if time < 0
                 time = time + 24;
+            elseif time > 24
+                time = time - 24;
             end
-            N0 = net([time;lla(1);lla(2);lla(3)*1e-3],'useGPU','yes');
+
+            input_raw = [jdate - 2433282.5; time; lla(1); lla(2); lla(3)*1e-3];
+            input_avg = [25581.9999999703, 10.3747458975316, 0.284981889543736, 180.007038172997, 1049.08650750044];
+            input_std = [8.66045976272869, 6.02542658129692, 52.0528796594471, 103.910546715735, 548.969414730606];
+            for ii = 1:length(input_raw)
+                input(ii) = (input_raw(ii)-input_avg(ii))/input_std(ii);
+            end
+            N0_raw = net(input');
+            N0_std = 1.522683511834375e5;
+            N0_avg = 8.668429073888397e4;
+            N0 = abs(N0_raw*N0_std+N0_avg);
             I = OML(tether_param, N0*(1e2)^3);
         end
 

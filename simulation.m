@@ -2,7 +2,7 @@ clear; close all; clc;
 
 %% Defaults
 mu = 398600; % [km^3/s^2]
-load("time_lla_2_density.mat")
+load("net_density_norm.mat")
 
 % orbit
 a0_def = 7378; % [km], semi-major axis
@@ -18,12 +18,12 @@ m1_def = 647.8; % [kg], main satellite mass
 m2_def = 392.2; % [kg], secondary satellite mass
 mt_def = 23.9448; % [kg], tether mass
 Ia_def = 0; % [kg*m^2], inertia about local vertical axis
-current_type_def = 2; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
+current_type_def = 3; % 0: constant, 1: controlled by energy limit, 2: OML avg e density, 3: OML ann
 current_val_def = 5; % [A] current value, max if 
 tether_radius = .00075;
 
 % simulation
-tend_def = 24*60; % [hour], time of simulation
+tend_def = 1; % [hour], time of simulation
 mag_model_def = 1; % 0: non-tilted; 1: igrf
 
 %% Orbital inputs
@@ -364,7 +364,7 @@ figure
 plot(t, pitch, t, roll)
 xlabel('time [hours]')
 ylabel('Libration [degree]')
-legend('In Plane ', 'Out Plane ', 'energy')
+legend('In Plane ', 'Out Plane ')
 
 
 figure
@@ -429,22 +429,47 @@ elseif current_type == 2
         I(ii) = OML(tether_param, N0*(1e2)^3);
     end
     figure
-    title("OML Current")
+    title("OML Current Average e- Density")
     plot(t,I)
     xlabel('time [hours]')
     ylabel('Current [Amps]')
 elseif current_type == 3
-    utc_time = datetime(jdate,'ConvertFrom','juliandate');
-    [ r , ~ ] = coes2state([sqrt(mu*a*(1-e^2)), i, e, RAAN, aop, ta], mu );
-    lla = eci2lla(r'*1e3,[year(utc_time), month(utc_time), day(utc_time),...
-        hour(utc_time), minute(utc_time),second(utc_time)]);
-    [zd,~,~] = timezone(lla(2));
-    time = zd + hour(utc_time) + minute(utc_time)/60 + second(utc_time)/(60*60);
-    if time < 0
-        time = time + 24;
+    for ii = 1:length(t)
+        jdate = 2458849.5 + t(ii)/(24*3600);
+        utc_time = datetime(jdate,'ConvertFrom','juliandate');
+        [ r , ~ ] = coes2state([sqrt(mu*a(ii)*(1-e(ii)^2)), i(ii), e(ii), RAAN(ii), aop(ii), ta(ii)], mu );
+        lla = eci2lla(r'*1e3,[year(utc_time), month(utc_time), day(utc_time),...
+            hour(utc_time), minute(utc_time),second(utc_time)]);
+        [zd,~,~] = timezone(lla(2));
+        time = zd + hour(utc_time) + minute(utc_time)/60 + second(utc_time)/(60*60);
+        if time < 0
+            time = time + 24;
+        elseif time > 24
+            time = time - 24;
+        end
+    
+        input_raw = [jdate - 2433282.5; time; lla(1); lla(2); lla(3)*1e-3];
+        input_avg = [25581.9999999703, 10.3747458975316, 0.284981889543736, 180.007038172997, 1049.08650750044];
+        input_std = [8.66045976272869, 6.02542658129692, 52.0528796594471, 103.910546715735, 548.969414730606];
+        for jj = 1:length(input_raw)
+            input(jj) = (input_raw(jj)-input_avg(jj))/input_std(jj);
+        end
+        N0_raw = net(input');
+        N0_std = 1.522683511834375e5;
+        N0_avg = 8.668429073888397e4;
+        N0(ii) = abs(N0_raw*N0_std+N0_avg);
+        I(ii) = OML(tether_param, N0(ii)*(1e2)^3);
     end
-    N0 = net([time;lla(1);lla(2);lla(3)*1e-3],'useGPU','yes');
-    I = OML(tether_param, N0*(1e2)^3);
+    figure
+    title("OML Current, neural net model")
+    plot(t,I)
+    xlabel('time [hours]')
+    ylabel('Current [Amps]')
+    figure
+    title("Electron Density, neural net model")
+    plot(t,N0)
+    xlabel('time [hours]')
+    ylabel('Electron Density [count/cm^3]')
 end
 
 

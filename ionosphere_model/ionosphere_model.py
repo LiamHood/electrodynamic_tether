@@ -139,7 +139,7 @@ plt.show()
 
 def build_model(hp):
     units = hp.Int(name="units", min_value=8, max_value=512, step=8)
-    layer_count = hp.Int("num_layers", 1, 8)
+    layer_count = hp.Int("num_layers", 1, 6)
     model = keras.Sequential()
     model.add(layers.Flatten())
     for ii in range(layer_count):
@@ -147,7 +147,7 @@ def build_model(hp):
             layers.Dense(units // layer_count, activation="relu")
         )
     model.add(layers.Dense(1))
-    optimizer = hp.Choice(name="optimizer", values=["rmsprop", "adam"])
+    optimizer = "adam"
     model.compile(
         optimizer=optimizer,
         loss="mse",
@@ -161,7 +161,7 @@ def build_model(hp):
 tuner = kt.BayesianOptimization(
     build_model,
     objective="val_mae",
-    max_trials=500,
+    max_trials=100,
     executions_per_trial=3,
     directory="ion_kt_test",
     project_name="opt_ion_model",
