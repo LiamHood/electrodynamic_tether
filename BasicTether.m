@@ -98,7 +98,7 @@ function [ t , states] = BasicTether( tspan , sc_state0, tether_state0, tether_p
         % Calculate supplementary orbital elements
         p = a*(1-e^2);
         h = sqrt(mu*p);
-        r = norm(states(1:3));
+        r = p/(1+e*cos(ta));
         n = sqrt(mu/a^3);
         u = aop + ta;
 

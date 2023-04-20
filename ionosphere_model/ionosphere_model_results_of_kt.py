@@ -100,40 +100,40 @@ plt.show()
 #     def __init__(self, num_classes=0):
 #         self.num_classes = num_classes
 
-    # def build(self, hp):
-    #     units = hp.Int(name="units", min_value=32, max_value=1024, step=32)
-    #     layer_count = hp.Int("num_layers", 1, 3)
-    #     model = keras.Sequential()
-    #     model.add(layers.Flatten())
-    #     for ii in range(layer_count):
-    #         model.add(
-    #             layers.Dense(units, activation="relu")
-    #         )
-    #     optimizer = hp.Choice(name="optimizer", values=["rmsprop", "adam"])
-    #     model.compile(
-    #         optimizer=optimizer,
-    #         loss="mse",
-    #         metrics="mae"
-    #     )
-    #     return model
+# def build(self, hp):
+#     units = hp.Int(name="units", min_value=32, max_value=1024, step=32)
+#     layer_count = hp.Int("num_layers", 1, 3)
+#     model = keras.Sequential()
+#     model.add(layers.Flatten())
+#     for ii in range(layer_count):
+#         model.add(
+#             layers.Dense(units, activation="relu")
+#         )
+#     optimizer = hp.Choice(name="optimizer", values=["rmsprop", "adam"])
+#     model.compile(
+#         optimizer=optimizer,
+#         loss="mse",
+#         metrics="mae"
+#     )
+#     return model
 
-    # def build(self, hp):
-    #     units = hp.Int(name="units", min_value=32, max_value=1024, step=32)
-    #     layer_count = hp.Int("num_layers", 1, 3)
-    #     model = keras.Sequential()
-    #     model.add(layers.Flatten())
-    #     for ii in range(layer_count):
-    #         model.add(
-    #             layers.Dense(units, activation="relu")
-    #         )
-    #     model.add(layers.Dense(1))
-    #     optimizer = hp.Choice(name="optimizer", values=["rmsprop", "adam"])
-    #     model.compile(
-    #         optimizer=optimizer,
-    #         loss="mse",
-    #         metrics="mae"
-    #     )
-    #     return model
+# def build(self, hp):
+#     units = hp.Int(name="units", min_value=32, max_value=1024, step=32)
+#     layer_count = hp.Int("num_layers", 1, 3)
+#     model = keras.Sequential()
+#     model.add(layers.Flatten())
+#     for ii in range(layer_count):
+#         model.add(
+#             layers.Dense(units, activation="relu")
+#         )
+#     model.add(layers.Dense(1))
+#     optimizer = hp.Choice(name="optimizer", values=["rmsprop", "adam"])
+#     model.compile(
+#         optimizer=optimizer,
+#         loss="mse",
+#         metrics="mae"
+#     )
+#     return model
 
 def build_model(hp):
     units = hp.Int(name="units", min_value=8, max_value=512, step=8)

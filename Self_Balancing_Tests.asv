@@ -106,14 +106,15 @@ function I = oml_sbet(h,p,L,At,PHI)
     lt = L/Lstar;
     % asymptotic expressions
     i_B = mu*lt^(3/2)/2*(1+3/5*delta)*(1-mu^(2/3)*(3/2)*(1+delta)*(1+3/5*delta)^(-1/3)...
-        -mu*(1/70)*lt^(3/2)*(81*delta^2+165*delta+70)/(5+3*delta));
+        -mu*(1/70)*lt^(3/2))
     curlye_B = (2*i_B)^2/3*(1+4/15*i_B+53/360*i_B^2+3479/35640*i_B^3+3037/42768*i_B^4);
+
     
     curlye = h/Lstar;
     Isc = sigma*Em*At;
     I = Isc*ie(curlye);
     phie = PHI/(Em*Lstar);
     
-    % NEED TO SOLVE BVP
+
 
 end

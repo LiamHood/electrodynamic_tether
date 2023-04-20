@@ -26,38 +26,40 @@ test_target = test_target - ta_mean;
 test_target = test_target./ ta_std;
 
 
-net = feedforwardnet([2,2,2,2].^6,'trainlm');
-net = configure(net, tra_input, tra_target);
-% for i=1:net.numLayers
-%   if strcmp(net.layers{i}.transferFcn,'tansig')
-%     net.layers{i}.transferFcn = 'elliotsig';
-%   end
-% end
-net.trainParam.show = 50;
-net.trainParam.lr = .05;
-net.trainParam.epochs = 10000;
-net.trainParam.goal = 1e-12;
-net.divideParam.trainRatio = .70;
-net.divideParam.valRatio = .20;
-net.divideParam.testRatio = .10;
-net.performFcn = 'mae';
-% net = train(net, tra_input, tra_target, 'useGPU', 'yes');
-net = train(net, tra_input, tra_target, 'useGPU', 'no');
+% net = feedforwardnet([2,2,2,2,2,2].*21,'trainlm');
+% net = configure(net, tra_input, tra_target);
+% % for i=1:net.numLayers
+% %   if strcmp(net.layers{i}.transferFcn,'tansig')
+% %     net.layers{i}.transferFcn = 'elliotsig';
+% %   end
+% % end
+% net.trainParam.show = 50;
+% net.trainParam.lr = .05;
+% net.trainParam.epochs = 10000;
+% net.trainParam.goal = 1e-12;
+% net.divideParam.trainRatio = .70;
+% net.divideParam.valRatio = .20;
+% net.divideParam.testRatio = .10;
+% net.performFcn = 'mae';
+% % net = train(net, tra_input, tra_target, 'useGPU', 'yes');
+% net = train(net, tra_input, tra_target, 'useGPU', 'no');
 
-load("net_density_norm.mat")
+load("net_density_norm_2.mat")
 net_test_output = net(test_input);
 % save("net_density_norm_2.mat","net")
 
-error_raw = test_target - net_test_output;
-error_actual = (test_target - net_test_output)*ta_std + ta_mean;
-% percent_error = 100*abs(net_tra_output-tra_target)./tra_target;
-for ii = 1:length(error_raw)
-    percent_error(ii) = 100*abs(error_raw(ii)/test_input(ii));
-end
-figure
-plot(percent_error,".")
-% axis([1, length(percent_error), 0, 100])
-fprintf("Percent error: %f\n", mean(percent_error))
+% error_raw = tra_target - net_tra_output;
+% error_actual = (tra_target - net_tra_output)*ta_std + ta_mean;
+% % percent_error = 100*abs(net_tra_output-tra_target)./tra_target;
+% for ii = 1:length(error_raw)
+%     percent_error(ii) = 100*abs(error_raw(ii)/tra_input(ii));
+% end
+% figure
+% plot(percent_error,".")
+% % axis([1, length(percent_error), 0, 100])
+fprintf("Percent error training: %f\n", perform(net, tra_target, net(tra_input)))
+fprintf("Percent error testing: %f\n", perform(net, test_target, net(test_input)))
+
 % figure
 % plot(error_raw)
 % figure
@@ -65,5 +67,8 @@ fprintf("Percent error: %f\n", mean(percent_error))
 % figure
 % plot(tra_input(1,1:1e3),tra_input(2,1:1e3),'.')
 % 
-% figure
-% plot(tra_input(2,1:1e3))
+figure
+hold on
+plot(net_test_output,".")
+plot(test_target,".")
+hold off

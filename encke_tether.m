@@ -51,28 +51,7 @@ function [ t , states] = encke_tether( tspan , sc_state0, tether_state0, ...
             f = 0 ;
         end
 
-        if current_type == 0
-            I = current_val;
-        elseif current_type == 1
-            % while energy is less than required to reach limit from 
-            limit_libration = 35;
-            [I, ~] = controlled_current(limit_libration, current_val, roll, pitch, droll, dpitch, m, L);
-        elseif current_type == 2
-            N0 = 2.0208e5;
-            I = OML(tether_param, N0*(1e2)^3);
-        elseif current_type == 3
-            utc_time = datetime(jdate,'ConvertFrom','juliandate');
-            [ r , ~ ] = coes2state([sqrt(mu*a*(1-e^2)), i, e, RAAN, aop, ta], mu );
-            lla = eci2lla(r'*1e3,[year(utc_time), month(utc_time), day(utc_time),...
-                hour(utc_time), minute(utc_time),second(utc_time)]);
-            [zd,~,~] = timezone(lla(2));
-            time = zd + hour(utc_time) + minute(utc_time)/60 + second(utc_time)/(60*60);
-            if time < 0
-                time = time + 24;
-            end
-            N0 = net([time;lla(1);lla(2);lla(3)*1e-3],'useGPU','yes');
-            I = OML(tether_param, N0*(1e2)^3);
-        end
+        
     
         % Find COES so that the function developed for VOP work
         COES = state2coes([r(:,ii-1); v(:,ii-1)], mu ); % h , inc , ecc , RAAN , omega , theta , a , rp , ra 
