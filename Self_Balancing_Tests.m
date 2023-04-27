@@ -92,7 +92,7 @@ xlabel("\theta, In Plane ")
 
 function I = oml_sbet(h,p,L,At,PHI)
     me = 9.1093837e-31; % mass of electron
-    mi = 2.6561e-23;
+    mi = 2.6561e-26;
     Em = 165; % Induced electric field; dot(cross(v, B), u)
     e = 1.60217663e-19; % electron charge
     sigma = 3.5e7; % from paper

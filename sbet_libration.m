@@ -10,6 +10,7 @@ function dstate = sbet_libration(t, state, mu, epsilon)
     dtheta = state(9);
     dphi = state(10);
 
+    
      % Calculate supplementary orbital elements
     p = a*(1-e^2);
     h = sqrt(mu*p);
