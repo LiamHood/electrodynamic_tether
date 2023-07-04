@@ -15,7 +15,7 @@ function dstate = current_distribution_diffe(h,state,parameters)
 
     dstate = zeros(2,1);
     if real(h) < h0
-        dstate(1) = e*ninf*p/pi*sqrt((2*e/me)*PHIe);
+        dstate(1) = e*ninf*p/pi*sqrt((2*e/me)*abs(PHIe));
     else
         dstate(1) = -e*ninf*p/pi*sqrt((2*e/me)*abs(PHIe))*mu*(1+gamma*abs(PHIe));
     end

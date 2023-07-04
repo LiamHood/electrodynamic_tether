@@ -17,6 +17,9 @@ mi = 2.6561e-26; % mass of atomic oxygen
 e = 1.60217663e-19; % electron charge
 mu = sqrt(me/mi); % Ratio (me/mi)^1/2
 sigma = 3.5e7; % conductivity for aluminum
+mue = 398600; % mu of earth
+mue_si = mue*1e9; % mu of earth in meters
+mum = 8e15; % magnetic constant of earths mag field
 
 % Ionosphere/orbit parameters
 gamma = .15e-3; % secondary emission yield
@@ -45,15 +48,19 @@ J1 = 0;
 for ii = 2:length(h)
     J1 = J1 + ((h_G-h(ii))*(s(ii,1))+(h_G-h(ii-1))*(s(ii-1,1)))/(h(ii)-h(ii-1));
 end
+epsilon = (J1/Is)*mum/mue_si;
+
 fprintf('J1 = %f\n', J1)
+fprintf('epsilon = %f\n', epsilon)
+
 figure
 subplot(2,1,1)
-plot(h, s(:,1),'-o')
+plot(h, s(:,1),'-')
 xlabel('h [m]')
 ylabel('I_e [A]')
 
 subplot(2,1,2)
-plot(h, s(:,2),'-o')
+plot(h, s(:,2),'-')
 xlabel('h [m]')
 ylabel('\Phi_e [V]')
 

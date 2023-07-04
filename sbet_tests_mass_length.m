@@ -1,7 +1,7 @@
 clear; close all; clc;
 
-n = 1e1;
-mm = 1e1;
+n = 1e2;
+mm = 1e2;
 
 % Constants
 sigma = 3.5e7; % 1/(Ohm*m)
@@ -30,6 +30,7 @@ for ii = 1:n
     for jj = 1:mm
         mt(ii,jj) = mt_per_m*L(ii);
         mt_coiled = mt_tot - mt(ii,jj) ;
+%         mt_coiled = 0 ;
         m1(ii,jj) = m_low ;
         m2(ii,jj) = m_up + m_additional(jj) + mt_coiled;
         [m, phi(ii,jj), LAMBDAt(ii,jj), ~, ~] = params_2_sbet_params(m1(ii,jj), m2(ii,jj), mt(ii,jj), L(ii));
@@ -74,6 +75,8 @@ for ii = 1:n
         eps0 = Em/L(ii)*(12*LAMBDAt(ii,jj)/(3*sin(2*phi(ii,jj))^2-2*LAMBDAt(ii,jj)))*(mum/mue_si)*(sigma/rhov);
         fhat_approx = mu*lt^1.5*.3*(1+5/7*delta)*(cos(phi(ii,jj))^2-(5/18)*((9+7*delta)/(7+5*delta)));
         epsilon(ii,jj) = eps0*fhat_approx;
+
+        phi_star(ii) = acosd(sqrt((5/18)*((9+7*delta)/(7+5*delta))));
     end
 end
 
@@ -95,4 +98,5 @@ plot([L(1),L(end)]*1e-3, [.0005, .0005],'r')
 plot([L(1),L(end)]*1e-3, [-.0005, -.0005], 'r')
 legend('deorbit mass = 0', 'deorbit mass = 50', 'deorbit mass = 100', ...
     'deorbit mass = 150', 'deorbit mass = 200', 'Location', 'northwest')
-
+xlabel('Length [km]')
+ylabel('\epsilon')

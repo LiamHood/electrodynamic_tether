@@ -25,17 +25,16 @@ function F = TetherSolveFun(s0, parameters, L) % boundary conditions
 
     F(1) = sB(1)-I_B; % Ie = max current = I_B, at B
     F(2) = sB(2); % PHIe = 0 at B
-    F(3) = sf(1)*10; % Ie = 0, I_B, at B
-    F(4) = imag(s0(1));
-    F(5) = imag(s0(2));
-    F(6) = imag(s0(3));
+    F(3) = sf(1)*100; % Ie = 0, I_B, at B
+    F(4) = sum(abs(s1(:,2))-s1(:,2));
+
 
     function dstate = bvp_ode_low(h,state) % equation being solved
         Ie = state(1);
         PHIe = state(2);
           
         dstate = zeros(2,1);
-        dstate(1) = e*ninf*p/pi*sqrt((2*e/me)*PHIe);
+        dstate(1) = e*ninf*p/pi*sqrt((2*e/me)*abs(PHIe));
         dstate(2) = Ie/(sigma*At)-Em;
     end
 

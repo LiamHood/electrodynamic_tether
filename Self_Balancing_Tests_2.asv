@@ -47,7 +47,7 @@ out_plane = deg2rad(5); % phi
 uhato = [cos(out_plane)*cos(in_plane); -sin(out_plane); cos(out_plane)*sin(in_plane)];
 % [MG, ME] = sbet_torque(mue, a, i, ta, Is, orbital2moving*uhato, h_G, L);
 tol = 1e-10;
-tspan = [0, 3600*2];
+tspan = [0, .1];
 tether_state0 = [in_plane; out_plane; 0; 0];
 opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
 load("nna_llat2densityL5N6.mat")
@@ -143,7 +143,9 @@ function dstate = sbet_libration(t, state, mu, net)
     B = [Bx; By; Bz];
     uhat = [cos(phi)*cos(theta), -sin(phi), cos(phi)*sin(theta)]; % paper config
     orbit2eci = [r./norm(r), cross(r,v)./norm(cross(r,v)), cross(r,cross(r,v))./norm(cross(r,cross(r,v)))];
-    v_orbit = orbit2eci'*v*1e3;
+    v_earth = 
+    v_rel = v - v_earth;
+    v_orbit = orbit2eci'*v_rel*1e3;
     Em = dot(cross(v_orbit, B), L*uhat);
     parameters = [p, At, me, Em, e, sigma, ninf, mu, gamma];
     
@@ -155,8 +157,8 @@ function dstate = sbet_libration(t, state, mu, net)
         'StepTolerance' , 1e-8 , 'OptimalityTolerance' , 1e-8 , ...
         'Algorithm' , 'levenberg-marquardt') ; 
     [ s0s , F ] = fsolve( @(s)TetherSolveFun(s,parameters,L) , s0 , opts) ;
-    PHIe_0 = s0s(1); 
-    I_B = s0s(2);
+    PHIe_0 = real(s0s(1)); 
+    I_B = real(s0s(2));
     h_span = [0, L];
     h_0 = s0s(3);
     parameters = [p, At, me, Em, e, sigma, ninf, mu, gamma, h_0];
@@ -170,19 +172,7 @@ function dstate = sbet_libration(t, state, mu, net)
     end
     epsilon = (J1/Is)*mum/mue_si;
     
-
-    a = state(1);
-    e = state(2);
-    i = state(3);
-    RAAN = state(4);
-    aop = state(5);
-    ta = state(6);
-    theta = state(7); % in plane
-    phi = state(8); % out of plane
-    dtheta = state(9);
-    dphi = state(10);
     % Calculate supplementary orbital elements
-    
     p = a*(1-e^2);
     h = sqrt(mu*p);
     r = p/(1+e*cos(ta));

@@ -24,7 +24,7 @@ m_max= 2e2 ; % kg
 mt_tot = 114.9;
 mt_per_m = (mt_tot/Lmax);
 m_low = 100;
-m_up = 100;
+m_up = 150;
 m_additional = 0;
 % figure
 % plot(L*1e-3, rad2deg(phi))
@@ -88,8 +88,8 @@ plot(L*1e-3, epsilon(:,1))
 plot(L*1e-3, epsilon(:,ceil(mm/4)))
 plot(L*1e-3, epsilon(:,2*ceil(mm/4)))
 plot(L*1e-3, epsilon(:,end))
-legend('electron density = 4e2 m^-^2', 'electron density = 4e5 m^-^2', ...
-    'electron density = 1e6 m^-^2', 'electron density = 1.8e6 m^-^2')
+legend('induced electric field = 1e-8 V/m', 'induced electric field = .2424 V/m', ...
+    'induced electric field = .4949 V/m', 'induced electric field = 1 V/m')
 xlabel('Length of Tether [km]')
 ylabel('\epsilon')
 
@@ -99,7 +99,7 @@ plot(rad2deg(phi), epsilon(:,1))
 plot(rad2deg(phi), epsilon(:,ceil(mm/4)))
 plot(rad2deg(phi), epsilon(:,2*ceil(mm/4)))
 plot(rad2deg(phi), epsilon(:,end))
-legend('electron density = 4e2 m^-^2', 'electron density = 4e5 m^-^2', ...
-    'electron density = 1e6 m^-^2', 'electron density = 1.8e6 m^-^2')
+legend('induced electric field = 1e-8 V/m', 'induced electric field = .2424 V/m', ...
+    'induced electric field = .4949 V/m', 'induced electric field = 1 V/m')
 xlabel('\Phi [degree]')
 ylabel('\epsilon')
