@@ -32,26 +32,20 @@ test_target = test_target/2e12; % density, max is 1.89e12 1/m^3
 
 
 %% Train
-net = feedforwardnet([2,2,2,2,2,2].*11,'trainlm');
-net = configure(net, input, target);
-% for i=1:net.numLayers
-%   if strcmp(net.layers{i}.transferFcn,'tansig')
-%     net.layers{i}.transferFcn = 'elliotsig';
-%   end
-% end
-net.trainParam.show = 50;
-net.trainParam.lr = .05;
-net.trainParam.epochs = 10000;
-net.trainParam.goal = 1e-12;
-net.divideParam.trainRatio = .70;
-net.divideParam.valRatio = .20;
-net.divideParam.testRatio = .10;
-net.performFcn = 'mse';
-% net = train(net, tra_input, tra_target, 'useGPU', 'yes');
-net = train(net, input, target, 'useGPU', 'no');
-save("nna_llat2densityL6N11.mat","net")
+% net = feedforwardnet([2,2].*16,'trainlm');
+% net = configure(net, input, target);
+% net.trainParam.show = 50;
+% net.trainParam.lr = .05;
+% net.trainParam.epochs = 10000;
+% net.trainParam.goal = 1e-12;
+% net.divideParam.trainRatio = .70;
+% net.divideParam.valRatio = .20;
+% net.divideParam.testRatio = .10;
+% net.performFcn = 'mse';
+% net = train(net, input, target, 'useGPU', 'no');
+% save("nna_llat2densityL2N16.mat","net")
 
-% load("nna_llat2densityL5N5.mat","net")
+load("nna_llat2densityL3N8.mat","net")
 output = net(input);
 test_output = net(test_input);
 

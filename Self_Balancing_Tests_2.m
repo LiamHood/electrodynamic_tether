@@ -37,17 +37,22 @@ coes_state0 = [a; e; i; RAAN; aop; ta];
 % x is radial, y is momentum, z is backwards along track
 % orbital frame definition in moving frame
 ihato_m = r/norm(r);
-jhato_m = cross(r,v)/norm(cross(r,v));
-khato_m = cross(ihato_m,jhato_m);
+jhato_m = -cross(r,v)/norm(cross(r,v));
+khato_m = cross(ihato_m,jhato_m)/norm(cross(ihato_m,jhato_m));
 orbital2moving = [ihato_m, jhato_m, khato_m];
 moving2orbital = orbital2moving';
 
-in_plane = deg2rad(10); % theta
-out_plane = deg2rad(5); % phi
-uhato = [cos(out_plane)*cos(in_plane); -sin(out_plane); cos(out_plane)*sin(in_plane)];
+in_plane = deg2rad(0); % theta
+out_plane = deg2rad(0); % phi
+u1 = [cos(out_plane)*cos(in_plane); -sin(out_plane); cos(out_plane)*sin(in_plane)];
+u2 = [-sin(in_plane); 0; cos(in_plane)];
+u3 = [-sin(out_plane)*cos(in_plane); -cos(out_plane); -sin(out_plane)*sin(in_plane)];
+tether_rotation = [u1, u2, u3];
+% uhato = [cos(out_plane)*cos(in_plane); -sin(out_plane); cos(out_plane)*sin(in_plane)];
+uhato = tether_rotation*[1,0,0];
 % [MG, ME] = sbet_torque(mue, a, i, ta, Is, orbital2moving*uhato, h_G, L);
-tol = 1e-10;
-tspan = [0, 3600*2];
+tol = 1e-8;
+tspan = [0, 10];
 tether_state0 = [in_plane; out_plane; 0; 0];
 opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
 load("nna_llat2densityL5N6.mat")
@@ -73,7 +78,8 @@ xlabel("Time [s]")
 ylabel("Semi-major Axis [km]")
 
 
-function dstate = sbet_libration(t, state, mu, net)
+function dstate = sbet_libration(t, state, mue, net)
+    t
     jdate = 2458849.5 + t/(24*3600);
 
     a = state(1);
@@ -89,20 +95,11 @@ function dstate = sbet_libration(t, state, mu, net)
 
      % Calculate supplementary orbital elements
     p = a*(1-e^2);
-    h = sqrt(mu*p);
+    h = sqrt(mue*p);
     r = p/(1+e*cos(ta));
-    n = sqrt(mu/a^3);
+    n = sqrt(mue/a^3);
     u = aop + ta;
 
-    m1 = 10; % lower mass
-    m2 = 10; % upper mass
-    mt = 10; % tether mass
-    L = 5000; % tether length
-    [m, phi, LAMBDAt, h_G, Is] = params_2_sbet_params(m1, m2, mt, L);
-    mue = 398600; % mu of earth
-    mue_si = mue*1e9; % mu of earth in meters
-    mum = 8e15; % magnetic constant of earths mag field
-    
     % Tether Parameters
     m1 = 10; % lower mass
     m2 = 100; % upper mass
@@ -119,13 +116,16 @@ function dstate = sbet_libration(t, state, mu, net)
     e = 1.60217663e-19; % electron charge
     mu = sqrt(me/mi); % Ratio (me/mi)^1/2
     sigma = 3.5e7; % conductivity for aluminum
-    
+    mum = 8e15; % magnetic constant of earths mag field
+    mue_si = mue*1e9; % mu of earth in meters
+
     % Ionosphere/orbit parameters
     gamma = .15e-3; % secondary emission yield
+    
 %     Em = .165; % Induced electric field; dot(cross(v, B), u)
     
     utc_time = datetime(jdate,'ConvertFrom','juliandate');
-    [ r , v ] = coes2state([sqrt(mu*a*(1-e^2)), i, e, RAAN, aop, ta], mu );
+    [ r , v ] = coes2state([sqrt(mue*a*(1-e^2)), i, e, RAAN, aop, ta], mue );
     lla = eci2lla(r'*1e3,[year(utc_time), month(utc_time), day(utc_time),...
         hour(utc_time), minute(utc_time),second(utc_time)]);
     UT = hour(utc_time)+minute(utc_time)/60+second(utc_time)/3600;
@@ -142,7 +142,10 @@ function dstate = sbet_libration(t, state, mu, net)
     [Bx, By, Bz] = MagField_OrbitalFrame(state); % a, e, i, RAAN, omega, theta
     B = [Bx; By; Bz];
     uhat = [cos(phi)*cos(theta), -sin(phi), cos(phi)*sin(theta)]; % paper config
-    orbit2eci = [r./norm(r), cross(r,v)./norm(cross(r,v)), cross(r,cross(r,v))./norm(cross(r,cross(r,v)))];
+    i_orbit = r./norm(r);
+    j_orbit = -cross(r,v)./norm(cross(r,v));
+    k_orbit = cross(i_orbit, j_orbit)./norm(cross(i_orbit, j_orbit));
+    orbit2eci = [i_orbit, j_orbit, k_orbit];
     v_orbit = orbit2eci'*v*1e3;
     Em = dot(cross(v_orbit, B), L*uhat);
     parameters = [p, At, me, Em, e, sigma, ninf, mu, gamma];
@@ -184,9 +187,9 @@ function dstate = sbet_libration(t, state, mu, net)
     % Calculate supplementary orbital elements
     
     p = a*(1-e^2);
-    h = sqrt(mu*p);
+    h = sqrt(mue*p);
     r = p/(1+e*cos(ta));
-    n = sqrt(mu/a^3);
+    n = sqrt(mue/a^3);
     u = aop + ta;
 
     % calculate force
@@ -210,5 +213,5 @@ function dstate = sbet_libration(t, state, mu, net)
     ddphi = -sin(phi)*cos(phi)*((1+dtheta)^2 + 3*cos(theta)^2)...
         +epsilon*sin(i)*(2*sin(ta)*sin(theta)+cos(ta)*cos(theta));
     
-    dstate = [da; de; di; dRAAN; daop; dta; dtheta; dphi; ddtheta; ddphi];
+    dstate = [da; de; di; dRAAN; daop; dta; dtheta; dphi; ddtheta; ddphi]
 end
