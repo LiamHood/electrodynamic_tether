@@ -6,9 +6,9 @@ clear; close all; clc;
 % mt is tether mass
 % (m1, m2, mt) => (m, phi, LAMBDAt)
 %% Define tether
-tether.m1 = 321.6; % lower mass [kg]
-tether.m2 = 563.5; % upper mass [kg]
-tether.L = 20000; % tether length [km]
+tether.m1 = 3210.6; % lower mass [kg]
+tether.m2 = 5630.5; % upper mass [kg]
+tether.L = 20000; % tether length [m]
 tether.density = 2700; % [kg/m^3]
 tether.thickness = .18e-3; % [m]
 tether.perimeter = 24e-3; % [m]
@@ -47,7 +47,7 @@ out_plane = deg2rad(0); % phi [radian]
 
 
 tol = 1e-6;
-tspan = [0, 10*3600];
+tspan = [0, 3*3600];
 tether_state0 = [in_plane; out_plane; 0; 0];
 opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
 e_density = load("nna_llat2densityL5N8.mat", "net");
@@ -91,8 +91,8 @@ end
 
 figure
 hold on
-plot(t, rad2deg(states(:, 7)))
-plot(t, rad2deg(states(:, 8)))
+plot(t/3600, rad2deg(states(:, 7)))
+plot(t/3600, rad2deg(states(:, 8)))
 hold off
 legend("\theta, In Plane", "\phi, Out of Plane")
 xlabel("Time [s]")
@@ -104,12 +104,12 @@ xlabel("\theta, In Plane ")
 ylabel("\phi, Out of Plane ")
 
 figure
-plot(t, states(:,1))
+plot(t/3600, states(:,1))
 xlabel("Time [s]")
 ylabel("Semi-major Axis [km]")
 
 figure
-plot(t, Em)
+plot(t/3600, Em)
 xlabel("Time [s]")
 ylabel("Induced Electric Field [V/m]")
 
