@@ -45,7 +45,8 @@ test_target = test_target/2e12; % density, max is 1.89e12 1/m^3
 % net = train(net, input, target, 'useGPU', 'no');
 % save("nna_llat2densityL2N16.mat","net")
 
-load("nna_llat2densityL3N8.mat","net")
+% load("nna_llat2densityL5N8.mat","net")
+load("nna_llat2densityL6N11.mat","net")
 output = net(input);
 test_output = net(test_input);
 
