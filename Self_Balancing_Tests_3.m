@@ -8,6 +8,8 @@ clear; close all; clc;
 %% Define tether
 tether.m1 = 3210.6; % lower mass [kg]
 tether.m2 = 5630.5; % upper mass [kg]
+tether.m2 = 3210.6; % lower mass [kg]
+tether.m1 = 5630.5; % upper mass [kg]
 tether.L = 20000; % tether length [m]
 tether.density = 2700; % [kg/m^3]
 tether.thickness = .18e-3; % [m]
@@ -44,10 +46,8 @@ coes_state0 = [a; ecc; i; RAAN; aop; ta];
 in_plane = deg2rad(0); % theta [radian]
 out_plane = deg2rad(0); % phi [radian]
 
-
-
 tol = 1e-6;
-tspan = [0, 3*3600];
+tspan = [0, 2*3600];
 tether_state0 = [in_plane; out_plane; 0; 0];
 opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
 e_density = load("nna_llat2densityL5N8.mat", "net");
@@ -55,8 +55,11 @@ bvp_ann = load("nna_L1N128_1e2_1e2.mat");
 [ t , states ] = ode45(@sbet_libration_ann, tspan , [coes_state0; tether_state0], opts, constants, tether, e_density.net, bvp_ann.net) ;
 
 
-% Find EM
+% Find internal states at work
 for ii = 1:length(t)
+    t(ii)/3600
+    jdate = 2458849.5 + t(ii)/(24*3600);
+
     state = states(ii,:);
     theta = states(ii,7);
     phi = states(ii,8);
@@ -71,6 +74,8 @@ for ii = 1:length(t)
     phi = state(8); % out of plane
     dtheta = state(9);
     dphi = state(10);
+    
+    parameters.ninf = find_electron_density(jdate, r, e_density.net);
 
      % Calculate supplementary orbital elements
     p = a*(1-ecc^2);
@@ -80,13 +85,44 @@ for ii = 1:length(t)
     u = aop + ta;
     [ r , v ] = coes2state([h, i, ecc, RAAN, aop, ta], constants.mue);
 
+    ninf(ii) = find_electron_density(jdate, r, e_density.net);
+    
+    parameters.ninf = ninf(ii);
     [Bx, By, Bz] = MagField_OrbitalFrame(state, constants.mum); % a, e, i, RAAN, omega, theta
-    B = [Bx; By; Bz];
+    B(:,ii) = [Bx; By; Bz];
     tether_rotation = tether_attitude(theta, phi);
-    uhat = tether_rotation*[1;0;0];
+    uhat(:,ii) = tether_rotation*[1;0;0];
     C_state2orbital = state_2_SBETorbital(r, v);
     v_orbit = C_state2orbital*v*1e3;
-    Em(ii) = dot(cross(v_orbit, B), uhat);
+    Em(ii) = dot(cross(v_orbit, B(:,ii)), uhat(:,ii));
+    parameters.Em = Em(ii);
+
+    % Use ANN to approximate BVP
+    ann_input = [1; 1; 1; Em(ii)/4; ninf(ii)/2e12];
+    ann_out = bvp_ann.net(ann_input);
+    PHIe_0 = ann_out(1)*1e5;
+    h_0 = ann_out(2)*1e3;
+    h_span = [0, tether.L];
+    opts = odeset( 'RelTol' , 1e-10 , 'AbsTol' , 1e-10 ) ;
+    [h, s] = ode45( @current_distribution_diffe2, h_span, [0, PHIe_0], opts, h_0, tether, constants, parameters) ;
+    J1 = 0;
+    Iint = 0;
+    fe_right = 0;
+    for jj = 2:length(h)
+        J1 = J1 + ((tether.h_G-h(jj))*(s(jj,1))+(tether.h_G-h(jj-1))*(s(jj-1,1)))/2*(h(jj)-h(jj-1));
+        Iint = Iint + (s(jj,1)+s(jj-1,1))/2*(h(jj)-h(jj-1));
+        fe_right = fe_right + (h(jj)*s(jj,1) + h(jj-1)*s(jj-1,1))/2 * (h(jj)-h(jj-1));
+    end
+    epsilon = (J1/tether.Is)*constants.mum/constants.mue_si;
+    Im = Iint/tether.L;
+    fe = fe_right/(tether.L^2*Im);
+
+    f_orbital(:,ii) = Im*tether.L*cross(uhat(:,ii), [Bx, By, Bz]);
+
+    Tq(:,ii) = edt_torque_orbital(theta, phi, tether.L, fe, Im, Bx, By, Bz);
+    Tgg(:,ii) = gravity_grad_torque_orbital(rmag*1e3, theta, phi, tether.Is, constants.mue_si);
+    T(:,ii) = Tq(:,ii)+Tgg(:,ii);
+    
 end
 
 figure
@@ -95,7 +131,7 @@ plot(t/3600, rad2deg(states(:, 7)))
 plot(t/3600, rad2deg(states(:, 8)))
 hold off
 legend("\theta, In Plane", "\phi, Out of Plane")
-xlabel("Time [s]")
+xlabel("Time [hour]")
 ylabel("Libration ")
 
 figure
@@ -105,13 +141,35 @@ ylabel("\phi, Out of Plane ")
 
 figure
 plot(t/3600, states(:,1))
-xlabel("Time [s]")
+xlabel("Time [hour]")
 ylabel("Semi-major Axis [km]")
 
 figure
 plot(t/3600, Em)
-xlabel("Time [s]")
+xlabel("Time [hour]")
 ylabel("Induced Electric Field [V/m]")
+
+figure
+hold on
+plot(t/3600, Tq(2,:)/max(Tq(2,:)))
+plot(t/3600, Tgg(2,:)/max(Tgg(2,:)))
+plot(t/3600, uhat(2,:)*10)
+plot(t/3600, rad2deg(states(:, 7)))
+hold off
+xlabel("Time [hour]")
+ylabel("Torque Y [N/m]")
+legend("Lorentz", "Gravity Gradient", "uhat")
+
+figure
+hold on
+plot(t/3600, Tq(3,:)/max(Tq(3,:)))
+plot(t/3600, Tgg(3,:)/max(Tgg(3,:)))
+plot(t/3600, uhat(3,:)*10)
+plot(t/3600, rad2deg(states(:, 8)))
+hold off
+xlabel("Time [hour]")
+ylabel("Torque Z [N/m]")
+legend("Lorentz", "Gravity Gradient", "uhat")
 
 function dstate = sbet_libration(t, state, constants, tether, e_density_ann)
     t/3600
@@ -233,17 +291,6 @@ function dstate = sbet_libration_ann(t, state, constants, tether, e_density_ann,
     v_orbit = C_state2orbital*v*1e3;
     parameters.Em = dot(cross(v_orbit, B), uhat);
     
-    % SOLVE BVP
-%     h0_0 = tether.L/10;
-%     s0 = [1;h0_0];
-%     opts = optimoptions( 'fsolve' , 'Display' , 'none'  , 'FunctionTolerance' , 1e-8 ,...
-%         'StepTolerance' , 1e-8 , 'OptimalityTolerance' , 1e-8 , ...
-%         'Algorithm' , 'levenberg-marquardt') ; 
-%     [ s0s , F ] = fsolve( @(s)TetherSolveFun2(s, tether, constants, parameters) , s0 , opts) ;
-%     PHIe_0 = s0s(1); 
-%     h_span = [0, tether.L];
-%     h_0 = s0s(2);
-
     % Use ANN to approximate BVP
     ann_input = [1; 1; 1; parameters.Em/4; parameters.ninf/2e12];
     ann_out = bvp_ann(ann_input);
