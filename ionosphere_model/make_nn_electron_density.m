@@ -38,21 +38,21 @@ test_target = test_target/2e12; % densx is 1.89e12 1/m^3
 
 
 %% Train
-% for p = 0:7
-%     net = feedforwardnet([2].^p,'trainlm');
-%     net = configure(net, input, target);
-%     net.trainParam.show = 50;
-%     net.trainParam.lr = .05;
-%     net.trainParam.epochs = 10000;
-%     net.trainParam.goal = 1e-12;
-%     net.divideParam.trainRatio = .70;
-%     net.divideParam.valRatio = .20;
-%     net.divideParam.testRatio = .10;
-%     net.performFcn = 'mse';
-%     net = train(net, input, target, 'useGPU', 'no');
-%     name = "nna_llat2densityL1P" + num2str(p) + ".mat";
-%     save(name,"net")
-% end
+for p = 0:6
+    net = feedforwardnet([2].^p,'trainlm');
+    net = configure(net, input, target);
+    net.trainParam.show = 50;
+    net.trainParam.lr = .05;
+    net.trainParam.epochs = 10000;
+    net.trainParam.goal = 1e-12;
+    net.divideParam.trainRatio = .70;
+    net.divideParam.valRatio = .20;
+    net.divideParam.testRatio = .10;
+    net.performFcn = 'mse';
+    net = train(net, input, target, 'useGPU', 'no');
+    name = "nna_llat2densityL1P" + num2str(p) + ".mat";
+    save(name,"net")
+end
 % 
 % for p = 0:6
 %     net = feedforwardnet([2,2].^p,'trainlm');
@@ -118,49 +118,49 @@ test_target = test_target/2e12; % densx is 1.89e12 1/m^3
 %     save(name,"net")
 % end
 % 
-for p = 3:5
-    net = feedforwardnet([2,2,2,2,2,2].^p,'trainlm');
-    net = configure(net, input, target);
-    net.trainParam.show = 50;
-    net.trainParam.lr = .05;
-    net.trainParam.epochs = 10000;
-    net.trainParam.goal = 1e-12;
-    net.divideParam.trainRatio = .70;
-    net.divideParam.valRatio = .20;
-    net.divideParam.testRatio = .10;
-    net.performFcn = 'mse';
-    net = train(net, input, target, 'useGPU', 'no');
-    name = "nna_llat2densityL6P" + num2str(p) + ".mat";
-    save(name,"net")
-end
-
-p = 7;
-net = feedforwardnet([2].^p,'trainlm');
-net = configure(net, input, target);
-net.trainParam.show = 50;
-net.trainParam.lr = .05;
-net.trainParam.epochs = 10000;
-net.trainParam.goal = 1e-12;
-net.divideParam.trainRatio = .70;
-net.divideParam.valRatio = .20;
-net.divideParam.testRatio = .10;
-net.performFcn = 'mse';
-net = train(net, input, target, 'useGPU', 'no');
-name = "nna_llat2densityL1P" + num2str(p) + ".mat";
-save(name,"net")
-
-p = 6;
-net = feedforwardnet([2,2].^p,'trainlm');
-net = configure(net, input, target);
-net.trainParam.show = 50;
-net.trainParam.lr = .05;
-net.trainParam.epochs = 10000;
-net.trainParam.goal = 1e-12;
-net.divideParam.trainRatio = .70;
-net.divideParam.valRatio = .20;
-net.divideParam.testRatio = .10;
-net.performFcn = 'mse';
-net = train(net, input, target, 'useGPU', 'no');
-name = "nna_llat2densitP" + num2str(p) + ".mat";
-save(name,"net")
-
+% for p = 3:5
+%     net = feedforwardnet([2,2,2,2,2,2].^p,'trainlm');
+%     net = configure(net, input, target);
+%     net.trainParam.show = 50;
+%     net.trainParam.lr = .05;
+%     net.trainParam.epochs = 10000;
+%     net.trainParam.goal = 1e-12;
+%     net.divideParam.trainRatio = .70;
+%     net.divideParam.valRatio = .20;
+%     net.divideParam.testRatio = .10;
+%     net.performFcn = 'mse';
+%     net = train(net, input, target, 'useGPU', 'no');
+%     name = "nna_llat2densityL6P" + num2str(p) + ".mat";
+%     save(name,"net")
+% end
+% 
+% p = 7;
+% net = feedforwardnet([2].^p,'trainlm');
+% net = configure(net, input, target);
+% net.trainParam.show = 50;
+% net.trainParam.lr = .05;
+% net.trainParam.epochs = 10000;
+% net.trainParam.goal = 1e-12;
+% net.divideParam.trainRatio = .70;
+% net.divideParam.valRatio = .20;
+% net.divideParam.testRatio = .10;
+% net.performFcn = 'mse';
+% net = train(net, input, target, 'useGPU', 'no');
+% name = "nna_llat2densityL1P" + num2str(p) + ".mat";
+% save(name,"net")
+% 
+% p = 6;
+% net = feedforwardnet([2,2].^p,'trainlm');
+% net = configure(net, input, target);
+% net.trainParam.show = 50;
+% net.trainParam.lr = .05;
+% net.trainParam.epochs = 10000;
+% net.trainParam.goal = 1e-12;
+% net.divideParam.trainRatio = .70;
+% net.divideParam.valRatio = .20;
+% net.divideParam.testRatio = .10;
+% net.performFcn = 'mse';
+% net = train(net, input, target, 'useGPU', 'no');
+% name = "nna_llat2densitP" + num2str(p) + ".mat";
+% save(name,"net")
+% 

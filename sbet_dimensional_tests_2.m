@@ -2,8 +2,8 @@
 clear; close all; clc;
 
 % Tether Parameters
-m1 = 10; % lower mass
-m2 = 100; % upper mass
+m1 = 647.8; % lower mass
+m2 = 392.2; % upper mass
 mt = 10; % tether mass
 L = 5000; % tether length
 [m, phi, LAMBDAt, h_G, Is] = params_2_sbet_params(m1, m2, mt, L);

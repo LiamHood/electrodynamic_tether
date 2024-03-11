@@ -29,7 +29,9 @@ mag_model_def = 1; % 0: non-tilted; 1: igrf
 %% Orbital inputs
 menu1 = input("Adjust orbit initial conditions? Y/[N]", 's');
 fprintf("\tSemi-Major Axis [km]: "+num2str(a0_def)+"\n")
+
 fprintf("\tEccentricity: "+num2str(e0_def)+"\n");
+
 fprintf("\tInclination [degree]: "+num2str(i0_deg_def)+"\n");
 fprintf("\tRight Ascension of Ascending Node [degree]: "+num2str(RAAN0_deg_def)+"\n");
 fprintf("\tArgument of Perigee [degree]: "+num2str(aop0_deg_def)+"\n");

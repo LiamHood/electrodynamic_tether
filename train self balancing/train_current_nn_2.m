@@ -109,22 +109,53 @@ test_target(1,:) = test_target(1,:)/norm_phi; %phi
 test_target(2,:) = test_target(2,:)/norm_h; %h
 
 %% Train
-net = feedforwardnet([2].*128,'trainlm');
-net = configure(net, input, target);
-net.trainParam.show = 50;
-net.trainParam.lr = .05;
-net.trainParam.epochs = 10000;
-net.trainParam.goal = 1e-12;
-net.divideParam.trainRatio = .70;
-net.divideParam.valRatio = .20;
-net.divideParam.testRatio = .10;
-net.performFcn = 'mse';
-net = train(net, input, target, 'useGPU', 'no');
-save("nna_L1N128_1e2_1e2.mat","net")
+% for ii = 1:8
+%     net = feedforwardnet([2].^ii,'trainlm');
+%     net = configure(net, input, target);
+%     net.trainParam.show = 50;
+%     net.trainParam.lr = .05;
+%     net.trainParam.epochs = 10000;
+%     net.trainParam.goal = 1e-12;
+%     net.divideParam.trainRatio = .70;
+%     net.divideParam.valRatio = .20;
+%     net.divideParam.testRatio = .10;
+%     net.performFcn = 'mse';
+%     net = train(net, input, target, 'useGPU', 'no');
+%     save("nna_L1P" + num2str(ii) + "_1e2_1e2.mat","net")
+% end
+% for ii = 1:8
+%     net = feedforwardnet([2,2].^ii,'trainlm');
+%     net = configure(net, input, target);
+%     net.trainParam.show = 50;
+%     net.trainParam.lr = .05;
+%     net.trainParam.epochs = 10000;
+%     net.trainParam.goal = 1e-12;
+%     net.divideParam.trainRatio = .70;
+%     net.divideParam.valRatio = .20;
+%     net.divideParam.testRatio = .10;
+%     net.performFcn = 'mse';
+%     net = train(net, input, target, 'useGPU', 'no');
+%     save("nna_L2P" + num2str(ii) + "_1e2_1e2.mat","net")
+% end
+% for ii = 1:8
+%     net = feedforwardnet([2,2,2].^ii,'trainlm');
+%     net = configure(net, input, target);
+%     net.trainParam.show = 50;
+%     net.trainParam.lr = .05;
+%     net.trainParam.epochs = 10000;
+%     net.trainParam.goal = 1e-12;
+%     net.divideParam.trainRatio = .70;
+%     net.divideParam.valRatio = .20;
+%     net.divideParam.testRatio = .10;
+%     net.performFcn = 'mse';
+%     net = train(net, input, target, 'useGPU', 'no');
+%     save("nna_L3P" + num2str(ii) + "_1e2_1e2.mat","net")
+% end
 
 % load("nna_L4N16_1e2_1e2_100_5km_5mm.mat")
 
 %% show
+load("nna_L2P5_1e2_1e2.mat")
 output = net(input);
 
 % 
@@ -170,82 +201,82 @@ fprintf("Performance: %e\n", perform(net, test_target, net(test_input)))
 fprintf("Percent error testing h_0: %f\n", mean(test_percent_error_h_0))
 fprintf("Percent error testing PHIe_0: %f\n", mean(test_percent_error_PHIe_0))
 
-figure
-subplot(2,1,1)
-hold on
-plot(input(4,:)*norm_Em, target(1,:)*norm_phi,'.')
-plot(input(4,:)*norm_Em, output(1,:)*norm_phi,'.')
-hold off
-xlabel('Em')
-ylabel('PHIe_0')
-legend('target', 'output')
-
-subplot(2,1,2)
-hold on
-plot(input(4,:)*norm_Em, target(2,:)*norm_h,'.')
-plot(input(4,:)*norm_Em, output(2,:)*norm_h,'.')
-hold off
-xlabel('Em')
-ylabel('h_0')
-legend('target', 'output')
-
-
-figure
-subplot(2,1,1)
-hold on
-plot(input(5,:)*norm_ninf, target(1,:)*norm_phi,'.')
-plot(input(5,:)*norm_ninf, output(1,:)*norm_phi,'.')
-hold off
-xlabel('ninf')
-ylabel('PHIe_0')
-legend('target', 'output')
-
-subplot(2,1,2)
-hold on
-plot(input(5,:)*norm_ninf, target(2,:)*norm_h,'.')
-plot(input(5,:)*norm_ninf, output(2,:)*norm_h,'.')
-hold off
-xlabel('ninf')
-ylabel('h_0')
-legend('target', 'output')
-
-
-figure
-subplot(2,1,1)
-hold on
-plot(test_input(4,:)*norm_Em, test_target(1,:)*norm_phi,'.')
-plot(test_input(4,:)*norm_Em, test_output(1,:)*norm_phi,'.')
-hold off
-xlabel('Em')
-ylabel('PHIe_0')
-legend('target', 'output')
-
-subplot(2,1,2)
-hold on
-plot(test_input(4,:)*norm_Em, test_target(2,:)*norm_h,'.')
-plot(test_input(4,:)*norm_Em, test_output(2,:)*norm_h,'.')
-hold off
-xlabel('Em')
-ylabel('h_0')
-legend('target', 'output')
-
-
-figure
-subplot(2,1,1)
-hold on
-plot(test_input(5,:)*norm_ninf, test_target(1,:)*norm_phi,'.')
-plot(test_input(5,:)*norm_ninf, test_output(1,:)*norm_phi,'.')
-hold off
-xlabel('ninf')
-ylabel('PHIe_0')
-legend('target', 'output')
-
-subplot(2,1,2)
-hold on
-plot(test_input(5,:)*norm_ninf, test_target(2,:)*norm_h,'.')
-plot(test_input(5,:)*norm_ninf, test_output(2,:)*norm_h,'.')
-hold off
-xlabel('ninf')
-ylabel('h_0')
-legend('target', 'output')
-
+% figure
+% subplot(2,1,1)
+% hold on
+% plot(input(4,:)*norm_Em, target(1,:)*norm_phi,'.')
+% plot(input(4,:)*norm_Em, output(1,:)*norm_phi,'.')
+% hold off
+% xlabel('Em')
+% ylabel('PHIe_0')
+% legend('target', 'output')
+% 
+% subplot(2,1,2)
+% hold on
+% plot(input(4,:)*norm_Em, target(2,:)*norm_h,'.')
+% plot(input(4,:)*norm_Em, output(2,:)*norm_h,'.')
+% hold off
+% xlabel('Em')
+% ylabel('h_0')
+% legend('target', 'output')
+% 
+% 
+% figure
+% subplot(2,1,1)
+% hold on
+% plot(input(5,:)*norm_ninf, target(1,:)*norm_phi,'.')
+% plot(input(5,:)*norm_ninf, output(1,:)*norm_phi,'.')
+% hold off
+% xlabel('ninf')
+% ylabel('PHIe_0')
+% legend('target', 'output')
+% 
+% subplot(2,1,2)
+% hold on
+% plot(input(5,:)*norm_ninf, target(2,:)*norm_h,'.')
+% plot(input(5,:)*norm_ninf, output(2,:)*norm_h,'.')
+% hold off
+% xlabel('ninf')
+% ylabel('h_0')
+% legend('target', 'output')
+% 
+% 
+% figure
+% subplot(2,1,1)
+% hold on
+% plot(test_input(4,:)*norm_Em, test_target(1,:)*norm_phi,'.')
+% plot(test_input(4,:)*norm_Em, test_output(1,:)*norm_phi,'.')
+% hold off
+% xlabel('Em')
+% ylabel('PHIe_0')
+% legend('target', 'output')
+% 
+% subplot(2,1,2)
+% hold on
+% plot(test_input(4,:)*norm_Em, test_target(2,:)*norm_h,'.')
+% plot(test_input(4,:)*norm_Em, test_output(2,:)*norm_h,'.')
+% hold off
+% xlabel('Em')
+% ylabel('h_0')
+% legend('target', 'output')
+% 
+% 
+% figure
+% subplot(2,1,1)
+% hold on
+% plot(test_input(5,:)*norm_ninf, test_target(1,:)*norm_phi,'.')
+% plot(test_input(5,:)*norm_ninf, test_output(1,:)*norm_phi,'.')
+% hold off
+% xlabel('ninf')
+% ylabel('PHIe_0')
+% legend('target', 'output')
+% 
+% subplot(2,1,2)
+% hold on
+% plot(test_input(5,:)*norm_ninf, test_target(2,:)*norm_h,'.')
+% plot(test_input(5,:)*norm_ninf, test_output(2,:)*norm_h,'.')
+% hold off
+% xlabel('ninf')
+% ylabel('h_0')
+% legend('target', 'output')
+% 

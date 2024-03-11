@@ -8,12 +8,12 @@ clear; close all; clc;
 %% Define tether
 tether.m1 = 3210.6; % lower mass [kg]
 tether.m2 = 5630.5; % upper mass [kg]
-tether.m2 = 3210.6; % lower mass [kg]
-tether.m1 = 5630.5; % upper mass [kg]
-tether.L = 20000; % tether length [m]
+tether.m2 = 392.2; % lower mass [kg]
+tether.m1 = 647.8; % upper mass [kg]
+tether.L = 5000; % tether length [m]
 tether.density = 2700; % [kg/m^3]
-tether.thickness = .18e-3; % [m]
-tether.perimeter = 24e-3; % [m]
+tether.thickness = 1.5e-3; % [m]
+tether.perimeter = pi*2*1.5e-3; % [m]
 tether.At = (tether.perimeter-tether.thickness*2)/2*tether.thickness; % [m^2]
 tether.mt = tether.density*tether.L*tether.At; % tether mass [kg]
 [tether.m, tether.phi, tether.LAMBDAt, tether.h_G, tether.Is] = params_2_sbet_params(tether.m1, tether.m2, tether.mt, tether.L); % [kg, radians, non-dimensional, m, kg*m^2]
@@ -33,7 +33,7 @@ constants.gamma = .15e-3; % secondary emission yield [1/V]
 %% Define orbit
 a = 7378; % [km], semi-major axis
 ecc = .001; % eccentricity
-i = deg2rad(25); % [radian], inclination
+i = deg2rad(35); % [radian], inclination
 RAAN = deg2rad(0); % [radian], right ascension of ascending node
 aop = deg2rad(0); % [radian], argument of perigee
 ta = deg2rad(0); % [radian], true anomaly
@@ -47,10 +47,10 @@ in_plane = deg2rad(0); % theta [radian]
 out_plane = deg2rad(0); % phi [radian]
 
 tol = 1e-6;
-tspan = [0, 2*3600];
+tspan = [0, .5*3600];
 tether_state0 = [in_plane; out_plane; 0; 0];
 opts = odeset('RelTol', tol, 'AbsTol', tol ) ;
-e_density = load("nna_llat2densityL5N8.mat", "net");
+e_density = load("nna_llat2densityL6P5.mat", "net");
 bvp_ann = load("nna_L1N128_1e2_1e2.mat");
 [ t , states ] = ode45(@sbet_libration_ann, tspan , [coes_state0; tether_state0], opts, constants, tether, e_density.net, bvp_ann.net) ;
 

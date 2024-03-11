@@ -36,8 +36,8 @@ test_input(3,:) = test_input(3,:)/2000; % altitude, data made from 100-2000 km
 test_input(4,:) = test_input(4,:)/24; % time, 0 to 24 hours
 test_target = test_target/2e12; % density, max is 1.89e12 1/m^3
 
-load(name,"net")
-% load("nna_llat2densityL6N11.mat","net")
+% load(name,"net")
+load("nna_llat2densityL6P5.mat","net")
 output = net(input);
 test_output = net(test_input);
 
@@ -57,9 +57,9 @@ for ii = 1:length(test_error_raw)
     end
 end
 
-fprintf("Percent error training: %f\n", perform(net, target, net(input)))
+fprintf("MSE Training: %f\n", perform(net, target, net(input)))
 fprintf("Percent error training: %f\n", mean(percent_error))
-fprintf("Percent error test: %f\n", perform(net, test_target, net(test_input)))
+fprintf("MSE test: %f\n", perform(net, test_target, net(test_input)))
 fprintf("Percent error test: %f\n", mean(test_percent_error))
 
 altitude = input(3,:)*2000;
@@ -118,3 +118,51 @@ hold off
 ylabel('test density')
 xlabel('test altitude')
 legend('net', 'target')
+
+%% display results
+% column_labels = ["layers", "neuron per layer", "Matlab calc MSE train", ...
+%     "By element MAE train", "Matlab calc MSE test", "By element MAE train"];
+% data_table = [column_labels];
+% for ii = 1:6
+%     if ii == 1
+%         n = 7;
+%     elseif ii == 2
+%         n = 5;
+%     elseif ii == 3
+%         n = 5;
+%     elseif ii == 4
+%         n = 4;
+%     elseif ii == 5
+%         n = 3;
+%     elseif ii == 6
+%         n = 5;
+%     end
+%     for jj = 1:n
+%         load("nna_llat2densityL" + num2str(ii) + "P" + num2str(jj) + ".mat","net")
+%         output = net(input);
+%         test_output = net(test_input);
+%         
+%         % 
+%         error_raw = output - target;
+%         for kk = 1:length(error_raw)
+%             percent_error(kk) = 100*abs(error_raw(kk))./target(kk);
+%             if isnan(percent_error(kk))
+%                 percent_error(kk) = 0;
+%             end
+%         end
+%         test_error_raw = test_output - test_target;
+%         for kk = 1:length(test_error_raw)
+%             test_percent_error(kk) = 100*abs(test_error_raw(kk))./test_target(kk);
+%             if isnan(test_percent_error(kk))
+%                 test_percent_error(kk) = 0;
+%             end
+%         end
+% 
+% %         fprintf("MSE Training: %f\n", perform(net, target, net(input)))
+% %         fprintf("Percent error training: %f\n", mean(percent_error))
+% %         fprintf("MSE test: %f\n", perform(net, test_target, net(test_input)))
+% %         fprintf("Percent error test: %f\n", mean(test_percent_error))
+%         new_data = [ii, 2^jj, perform(net, target, net(input)), mean(percent_error), perform(net, test_target, net(test_input)), mean(test_percent_error)];
+%         data_table = [data_table; new_data];
+%     end
+% end

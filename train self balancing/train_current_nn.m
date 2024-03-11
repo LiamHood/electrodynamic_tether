@@ -8,7 +8,7 @@ per = tether_radius*2*pi; %perimeter in meters
 At = tether_radius^2*pi;
 
 %% load test data
-data_10 = load("starting_values_1e2_1e2_10_5km_5mm.mat");
+data_10 = load("Em_1_2.mat");
 nn = length(data_10.Em);
 mm = length(data_10.ninf);
 test_input = [];
@@ -87,7 +87,7 @@ test_target(3,:) = test_target(3,:)/1e5;
 % net.performFcn = 'mse';
 % net = train(net, input, target, 'useGPU', 'no');
 % save("nna_L4N16_1e2_1e2_100_5km_5mm.mat","net")
-load("nna_L4N16_1e2_1e2_100_5km_5mm.mat")
+load("nna_L1N128_1e2_1e2.mat")
 %% show
 output = net(input);
 

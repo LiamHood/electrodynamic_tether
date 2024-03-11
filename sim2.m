@@ -1,9 +1,9 @@
 clear; close all; clc;
 
 %% Defaults
-a0 = 6878;
+a0 = 6378+1000;
 e0 = .02;
-i0_deg = 30;
+i0_deg = 35;
 i0 = deg2rad(i0_deg);
 RAAN0_deg = 30;
 RAAN0 = deg2rad(RAAN0_deg);
@@ -13,10 +13,10 @@ ta0_deg = 0;
 ta0 = deg2rad(ta0_deg);
 tend = 30;
 
-L = 15;%km
-m1 = 250;%kg
-m2 = 15;%kg
-mt = 20;%kg
+L = 5;%km
+m1 = 647.8;%kg
+m2 = 392.2;%kg
+mt = 95.7793;%kg
 It = m2*(L*1000)^2 + mt*(1/3)*(L*1000)^2;
 Ia = 0;
 current_type = 0; % 0: constant, 2: controlled
